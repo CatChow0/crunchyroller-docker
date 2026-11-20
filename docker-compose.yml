@@ -1,0 +1,32 @@
+services:
+  crunchyroller:
+    build: .
+    image: crunchyroller:local
+    container_name: crunchyroller
+    restart: unless-stopped
+    # Run as the host user that owns ./data and the downloads folder.
+    user: "${PUID:-1000}:${PGID:-1000}"
+    environment:
+      # Hostnames allowed to call the API besides localhost: LAN IP and/or Traefik domain.
+      CRUNCHYROLLER_ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-}"
+      TZ: "${TZ:-Europe/Paris}"
+    volumes:
+      - ./data:/data                               # config.json, state, logs, your .wvd
+      - ${DOWNLOAD_DIR:-./downloads}:/downloads    # set "/downloads" as download folder in settings
+    ports:
+      - "8000:8000"   # direct LAN access; remove if you only go through Traefik
+    # --- Traefik (uncomment, and keep basic auth: the web UI has no login of its own) ---
+    # networks: [traefik]
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.http.routers.crunchyroller.rule=Host(`crunchy.example.org`)
+    #   - traefik.http.routers.crunchyroller.entrypoints=websecure
+    #   - traefik.http.routers.crunchyroller.tls=true
+    #   - traefik.http.routers.crunchyroller.middlewares=crunchyroller-auth
+    #   # htpasswd -nbB user password  (double every $ in compose files)
+    #   - traefik.http.middlewares.crunchyroller-auth.basicauth.users=user:$$2y$$05$$replace-me
+    #   - traefik.http.services.crunchyroller.loadbalancer.server.port=8000
+
+# networks:
+#   traefik:
+#     external: true

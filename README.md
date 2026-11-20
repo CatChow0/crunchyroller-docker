@@ -61,6 +61,23 @@ Crunchyroll streams are encrypted with Widevine DRM. Place either of the followi
 
 ---
 
+## Docker (headless server / NAS)
+
+```bash
+git clone <this repo> && cd crunchyroller
+cp .env.example .env          # set PUID/PGID, DOWNLOAD_DIR, ALLOWED_ORIGINS
+mkdir -p data && cp /path/to/device.wvd data/
+docker compose up -d --build
+```
+
+- Open `http://<server-ip>:8000`, log in, then set the download folder to `/downloads` in settings.
+- `data/` keeps `config.json`, queue/watcher state, logs and the Widevine keys.
+- `ALLOWED_ORIGINS` must list every hostname you open the UI from (LAN IP, reverse-proxy domain), otherwise API calls are rejected (403).
+- Traefik labels are ready in `docker-compose.yml` (commented). **The UI has no login and controls your Crunchyroll account: keep basic auth on, never expose it to the internet without it.**
+- The folder picker button does not work in the container; type the path instead.
+
+---
+
 ## CLI Examples
 
 ```bash
