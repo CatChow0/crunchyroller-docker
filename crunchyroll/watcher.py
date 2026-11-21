@@ -83,6 +83,42 @@ class MonitoredStore:
                 logger.error("Failed writing %s: %s", self.file_path, e)
 
 
+def _field(obj: Any, name: str, default: Any = "") -> Any:
+    return obj.get(name, default) if isinstance(obj, dict) else getattr(obj, name, default)
+
+
+def _episode_audio_locales(ep: Any) -> List[str]:
+    locales = [str(_field(v, "audio_locale") or "") for v in (_field(ep, "versions", None) or [])]
+    locales.append(str(_field(ep, "audio_locale") or ""))
+    return [l.strip().lower() for l in locales if l and l.strip()]
+
+
+def _audio_ready(client: Any, ep: Any, audio_lang: Any, cfg: Dict[str, Any]) -> bool:
+    """Whether the episode exists in every requested audio language.
+
+    Always True when audio fallback is enabled (the download would succeed anyway).
+    Episodes that are not ready stay pending, so a late dub is picked up once released.
+    """
+    if cfg.get("audio_fallback", True):
+        return True
+    from crunchyroll.queue import normalize_langs
+    wanted = {l.lower() for l in normalize_langs(audio_lang)}
+    if wanted & {"all", "*"}:
+        return True
+    locales = set(_episode_audio_locales(ep))
+    ep_id = str(_field(ep, "id") or "").strip()
+    # shortcut: the season listing is trusted when it carries a version list; only an empty one triggers a per-episode lookup.
+    if not _field(ep, "versions", None) and client and ep_id:
+        try:
+            from crunchyroll.api import get_episode_info
+            info = get_episode_info(client, ep_id)
+            meta = info.episode_metadata
+            locales |= set(_episode_audio_locales({"versions": meta.versions, "audio_locale": meta.audio_locale}))
+        except Exception as e:
+            logger.debug("[watcher] audio lookup failed for %s: %s", ep_id, e)
+    return wanted <= locales
+
+
 class SeriesWatcher:
     """Background engine monitoring ongoing anime series and queuing new episodes."""
 
@@ -249,7 +285,11 @@ class SeriesWatcher:
                         if s_meta:
                             if mode == "latest_only" and (not existing or is_switching_to_latest or not known_eps):
                                 eps = s_meta.get("episodes", [])
-                                known_eps = [str(getattr(e, "id", "") or e.get("id", "")) for e in eps if getattr(e, "id", None) or (isinstance(e, dict) and e.get("id"))]
+                                # Episodes already out but not yet dubbed in the requested language stay pending.
+                                known_eps = [
+                                    str(_field(e, "id")) for e in eps
+                                    if _field(e, "id") and _audio_ready(client, e, al, cfg)
+                                ]
                             if not clean_title or clean_title == clean_id:
                                 clean_title = s_meta.get("title") or clean_title
                             if not clean_poster:
@@ -477,6 +517,7 @@ class SeriesWatcher:
             logger.warning("[watcher] Download directory '%s' is not accessible (drive disconnected?). Skipping disk-sync for '%s'.", dl_dir, title)
 
         to_download = []
+        pending_audio: set = set()
         for ep in all_eps:
             ep_id = str(getattr(ep, "id", "") or (ep.get("id") if isinstance(ep, dict) else "")).strip()
             if not ep_id:
@@ -518,6 +559,12 @@ class SeriesWatcher:
             else:
                 on_disk = ep_id in downloaded_set
 
+            # Episodes not yet released in the requested dub stay pending (not known, not queued).
+            if (mode == "latest_only" and ep_id not in known_set) or (mode == "all_missing" and not on_disk):
+                if not _audio_ready(client, ep, al, cfg):
+                    pending_audio.add(ep_id)
+                    continue
+
             # Mode 1: latest_only -> new episode if not in known_set and not on disk
             if mode == "latest_only":
                 if ep_id not in known_set and not on_disk:
@@ -543,10 +590,10 @@ class SeriesWatcher:
                             "episode_number": ep_num,
                         })
 
-        # Update known_set with all current episodes
+        # Update known_set with all current episodes, except those still waiting for their dub
         for ep in all_eps:
             eid = str(getattr(ep, "id", "") or (ep.get("id") if isinstance(ep, dict) else "")).strip()
-            if eid:
+            if eid and eid not in pending_audio:
                 known_set.add(eid)
 
         events: List[Dict[str, Any]] = []
