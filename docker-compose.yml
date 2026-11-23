@@ -1,7 +1,8 @@
 services:
   crunchyroller:
+    # `docker compose pull` gets the published image; `docker compose up -d --build` builds it from this folder.
+    image: catchow/crunchyroller-docker:DEV
     build: .
-    image: crunchyroller:local
     container_name: crunchyroller
     restart: unless-stopped
     # Run as the host user that owns ./data and the downloads folder.
