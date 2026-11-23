@@ -55,5 +55,5 @@ benchmarks/
 *REVIEW*.md
 
 # Docker volumes
-data/
-downloads/
+/data/
+/downloads/

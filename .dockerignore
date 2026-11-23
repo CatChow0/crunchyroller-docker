@@ -4,10 +4,16 @@ venv
 .idea
 .vscode
 __pycache__
+.pytest_cache
 *.pyc
 tests
+docs
+readme-assets
 bin
-tools
+build
+dist
+*.zip
+ffmpeg.exe
 data
 downloads
 anime

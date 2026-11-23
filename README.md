@@ -41,33 +41,18 @@ pip install -r requirements.txt
 python main.py --gui       # or --browser
 ```
 
-## Docker (optional, for a headless server / NAS)
-
-Docker is only one more way to run it: the Windows exe, desktop window, `--browser` and CLI work exactly as above.
+**Docker** (optional, for a headless server / NAS):
 
 ```bash
 git clone https://github.com/CatChow0/crunchyroller-docker.git && cd crunchyroller-docker
-cp .env.example .env          # set PUID/PGID, DOWNLOAD_DIR, ALLOWED_ORIGINS
-mkdir -p data && cp /path/to/device.wvd data/
+cp .env.example .env
+mkdir -p data downloads    # put your Widevine keys in data/
+docker compose pull && docker compose up -d    # published image, amd64
 ```
 
-Then use the published image (amd64):
+To build it from source instead: `docker compose up -d --build`. Traefik labels are ready in `docker-compose.yml` (commented, keep the basic auth).
 
-```bash
-docker compose pull && docker compose up -d
-```
-
-or build it from source:
-
-```bash
-docker compose up -d --build
-```
-
-- Open `http://<server-ip>:8000`, log in, then set the download folder to `/downloads` in settings.
-- `data/` keeps `config.json`, queue/watcher state, logs and the Widevine keys.
-- `ALLOWED_ORIGINS` must list every hostname you open the UI from (LAN IP, reverse-proxy domain), otherwise API calls are rejected (403).
-- Traefik labels are ready in `docker-compose.yml` (commented). **The UI has no login and controls your Crunchyroll account: keep basic auth on, never expose it to the internet without it.**
-- The folder picker button does not work in the container; type the path instead.
+Open `http://localhost:8000` and set the download folder to `/downloads` in settings (type it, the folder picker needs a desktop). To open it from another machine, set `BIND_IP` and `ALLOWED_ORIGINS` in `.env`. **The UI has no login and controls your account: never expose it to the internet without an authenticating reverse proxy.**
 
 ## <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-terminal-dark.svg"><img width="22" src="readme-assets/icon-terminal-light.svg" alt=""></picture> CLI
 
