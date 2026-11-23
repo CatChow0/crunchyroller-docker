@@ -1,7 +1,7 @@
 services:
   crunchyroller:
     # `docker compose pull` gets the published image; `docker compose up -d --build` builds it from this folder.
-    image: catchow/crunchyroller-docker:DEV
+    image: catchow/crunchyroller-docker:latest
     build: .
     container_name: crunchyroller
     restart: unless-stopped

@@ -49,8 +49,18 @@ Docker is only one more way to run it: the Windows exe, desktop window, `--brows
 git clone https://github.com/CatChow0/crunchyroller-docker.git && cd crunchyroller-docker
 cp .env.example .env          # set PUID/PGID, DOWNLOAD_DIR, ALLOWED_ORIGINS
 mkdir -p data && cp /path/to/device.wvd data/
-docker compose pull && docker compose up -d    # published image (amd64)
-docker compose up -d --build                   # or build it from source
+```
+
+Then use the published image (amd64):
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+or build it from source:
+
+```bash
+docker compose up -d --build
 ```
 
 - Open `http://<server-ip>:8000`, log in, then set the download folder to `/downloads` in settings.
