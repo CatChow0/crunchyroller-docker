@@ -1,70 +1,50 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # Crunchyroller
 
-**A fast Crunchyroll downloader with a Web GUI and CLI. Download episodes, full seasons, or entire series with multi-track audio, soft subtitles, chapter markers, and automated Widevine DRM decryption into MKV.**
+**Fast Crunchyroll downloader.** Web GUI, desktop window, or CLI.
+Multi-track audio, soft subs, skip chapters, auto decryption, one clean MKV.
 
 [![Release](https://img.shields.io/github/v/release/Vure-sh/crunchyroller?color=black&style=for-the-badge)](https://github.com/Vure-sh/crunchyroller/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/Vure-sh/crunchyroller/total?color=black&style=for-the-badge)](https://github.com/Vure-sh/crunchyroller/releases)
 [![Stars](https://img.shields.io/github/stars/Vure-sh/crunchyroller?color=ffd700&style=for-the-badge)](https://github.com/Vure-sh/crunchyroller/stargazers)
 
-<br/>
-
-<img width="800" alt="Crunchyroller Web GUI" src="https://github.com/user-attachments/assets/f632405c-2cbf-4fe8-8ff3-d8095cdf32d1" />
+<img width="720" alt="Crunchyroller dashboard" src="readme-assets/readme-dashboard.png" />
 
 </div>
 
----
+## <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-sparkles-dark.svg"><img width="22" src="readme-assets/icon-sparkles-light.svg" alt=""></picture> Features
 
-## Features
+- <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-monitor-dark.svg"><img width="16" src="readme-assets/icon-monitor-light.svg" alt=""></picture> **Web GUI, desktop window, or CLI** - same app, your pick
+- <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-download-dark.svg"><img width="16" src="readme-assets/icon-download-light.svg" alt=""></picture> **Auto-Downloader** with per-series settings (audio, subs, quality, folder)
+- <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-headphones-dark.svg"><img width="16" src="readme-assets/icon-headphones-light.svg" alt=""></picture> **All dubs and soft subs in one MKV**, with skip chapters for Intro/Outro
+- <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-repeat-dark.svg"><img width="16" src="readme-assets/icon-repeat-light.svg" alt=""></picture> **Queue with pause/resume**, batch whole seasons or series
+- <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-tv-dark.svg"><img width="16" src="readme-assets/icon-tv-light.svg" alt=""></picture> **Plex/Jellyfin-ready naming** out of the box
 
-- **Web GUI & CLI:** Download via browser interface, desktop window (`--gui`), or directly from the terminal.
-- **Multi-Track Audio & Soft Subtitles:** Download Japanese, English, or all available audio dubs and soft subtitles (including English CC) in a single MKV.
-- **Official Chapter Markers:** Embeds Crunchyroll skip events (Intro, Outro, Credits, Preview) for one-click skipping in VLC, MPV, Plex, and Jellyfin.
-- **Queue & Batch Downloads:** Queue episodes, full seasons, or series with live progress, pause, resume, and cancellation.
-- **Plex & Jellyfin Ready:** Automatically organizes files into `Series/Season XX/Series - S01E01 - Title.mkv` for instant metadata matching.
-- **Fast & Unthrottled:** Direct Widevine CENC decryption with maximum connection throughput.
-- **Season Explorer:** Inspect and download tricky season numbers and story arcs with `--list-seasons`.
+## <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-download-dark.svg"><img width="22" src="readme-assets/icon-download-light.svg" alt=""></picture> Auto-Downloader
 
----
+Add an anime and new episodes download themselves. Each show gets its own mode (Future Only / All Missing) and its own settings via the gear on its card. Episodes airing before their dub stay pending until the dub drops.
 
-## Quick Start
+<div align="center" markdown="1">
+<img width="49%" alt="Auto-Downloader tab" src="readme-assets/readme-autodl.png" /> <img width="49%" alt="Per-series settings" src="readme-assets/readme-series-settings.png" />
+</div>
 
-### Windows (Pre-built)
-1. Download the latest release from [Releases](https://github.com/Vure-sh/crunchyroller/releases/latest).
-2. Extract the `.zip` archive.
-3. Place your Widevine CDM files in the folder (see [Widevine Keys](#widevine-keys)).
-4. Run `crunchyroller.exe`.
+## <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-rocket-dark.svg"><img width="22" src="readme-assets/icon-rocket-light.svg" alt=""></picture> Quick Start
 
-### From Source (Linux, macOS, Windows)
-Requirements: **Python 3.10+** and [**FFmpeg**](https://ffmpeg.org/).
+**Windows:** grab the [latest release](https://github.com/Vure-sh/crunchyroller/releases/latest), drop your Widevine keys (`*.wvd`, or `client_id.bin` + `private_key.pem`) next to the exe, run it.
+
+**From source** (Python 3.10+, FFmpeg):
 
 ```bash
-git clone https://github.com/Vure-sh/crunchyroller.git
-cd crunchyroller
+git clone https://github.com/Vure-sh/crunchyroller.git && cd crunchyroller
 pip install -r requirements.txt
-
-# Run the app
-python main.py --gui       # desktop window
-python main.py --browser   # in your default browser
+python main.py --gui       # or --browser
 ```
-
----
-
-## Widevine Keys
-
-Crunchyroll streams are encrypted with Widevine DRM. Place either of the following in the app root directory:
-- A `*.wvd` file, **or**
-- `client_id.bin` and `private_key.pem`
-
-*(Keys cannot be bundled with the project. You can dump them from an Android device).*
-
----
 
 ## Docker (headless server / NAS)
 
 ```bash
-git clone <this repo> && cd crunchyroller
+git clone https://github.com/CatChow0/crunchyroller-docker.git && cd crunchyroller-docker
 cp .env.example .env          # set PUID/PGID, DOWNLOAD_DIR, ALLOWED_ORIGINS
 mkdir -p data && cp /path/to/device.wvd data/
 docker compose up -d --build
@@ -76,49 +56,22 @@ docker compose up -d --build
 - Traefik labels are ready in `docker-compose.yml` (commented). **The UI has no login and controls your Crunchyroll account: keep basic auth on, never expose it to the internet without it.**
 - The folder picker button does not work in the container; type the path instead.
 
----
-
-## CLI Examples
+## <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-terminal-dark.svg"><img width="22" src="readme-assets/icon-terminal-light.svg" alt=""></picture> CLI
 
 ```bash
-# Download a single episode in 1080p
-python main.py "https://www.crunchyroll.com/watch/..." --video-quality 1080p
-
-# Download with specific audio dubs and subtitles
-python main.py "https://www.crunchyroll.com/watch/..." --audio-lang "ja-JP,en-US" --subs-lang "en-US,es-419"
-
-# Download all available dubs and subs
-python main.py "https://www.crunchyroll.com/watch/..." --audio-lang all --subs-lang all
-
-# List story arcs and seasons
-python main.py "https://www.crunchyroll.com/series/..." --list-seasons
-
-# Download a specific season or arc
-python main.py "https://www.crunchyroll.com/series/..." --season 1
-
-# Batch download from a text file (one URL per line)
-python main.py --file urls.txt
+python main.py "<url>" --video-quality 1080p --audio-lang "ja-JP,en-US" --subs-lang "en-US"
+python main.py "<series-url>" --season 1
+python main.py --file urls.txt    # batch
 ```
 
----
+**Optional:** [N_m3u8DL-RE](https://github.com/nilaoda/N_m3u8DL-RE) engine (thanks to [@AnCry1596](https://github.com/AnCry1596)): put it + `mp4decrypt` in `bin/`, set `"use_n_m3u8dl_re": true`. Logs (auto-redacted) are in `%LOCALAPPDATA%\crunchyroller\logs` / `~/.config/crunchyroller/logs` / `~/Library/Logs/crunchyroller`.
 
-## Optional Download Engine: N_m3u8DL-RE
+## <picture><source media="(prefers-color-scheme: dark)" srcset="readme-assets/icon-globe-dark.svg"><img width="22" src="readme-assets/icon-globe-light.svg" alt=""></picture> Community
 
-Crunchyroller uses its built-in Python downloader by default, but also supports [N_m3u8DL-RE](https://github.com/nilaoda/N_m3u8DL-RE) (thanks to [@AnCry1596](https://github.com/AnCry1596)):
-1. Place `N_m3u8DL-RE` and `mp4decrypt` into the `bin/` folder.
-2. In `config.json`, set `"use_n_m3u8dl_re": true`.
+- [crunchyroller-docker](https://github.com/CatChow0/crunchyroller-docker): run Crunchyroller in Docker, handy for servers and NAS. Thanks [@CatChow0](https://github.com/CatChow0)!
 
 ---
 
-## Logs & Troubleshooting
-
-Logs are stored locally with tokens and sensitive credentials automatically redacted:
-- **Windows:** `%LOCALAPPDATA%\crunchyroller\logs\crunchyroller.log`
-- **Linux:** `~/.config/crunchyroller/logs/crunchyroller.log`
-- **macOS:** `~/Library/Logs/crunchyroller/crunchyroller.log`
-
----
-
-## Disclaimer
-
-This project is for personal backup and educational purposes only. Please support the official creators and license holders by maintaining an active Crunchyroll subscription.
+<div align="center" markdown="1">
+<sub>For personal backup and educational purposes only. Support the official creators with an active Crunchyroll subscription.</sub>
+</div>
