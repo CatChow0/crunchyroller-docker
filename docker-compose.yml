@@ -15,7 +15,7 @@ services:
       - ${DOWNLOAD_DIR:-./downloads}:/downloads
     ports:
       # The web UI has no login: localhost only unless BIND_IP is set.
-      - "${BIND_IP:-127.0.0.1}:8000:8000"
+      - "${BIND_IP:-127.0.0.1}:${PORT:-8000}:8000"
     # --- Traefik (uncomment, and keep basic auth: the web UI has no login of its own) ---
     # networks: [traefik]
     # labels:
