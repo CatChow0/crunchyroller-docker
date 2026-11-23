@@ -1854,7 +1854,7 @@ def start_gui(port=8000, use_browser=False):
     orig_port = port
     for p in range(port, port + 50):
         try:
-            srv = http.server.ThreadingHTTPServer((os.environ.get("CRUNCHYROLLER_HOST", "127.0.0.1"), p), Handler)
+            srv = http.server.ThreadingHTTPServer((os.environ.get("CRUNCHYROLLER_HOST") or "127.0.0.1", p), Handler)
             port = p
             break
         except OSError:

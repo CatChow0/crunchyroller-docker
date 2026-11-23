@@ -41,7 +41,9 @@ pip install -r requirements.txt
 python main.py --gui       # or --browser
 ```
 
-## Docker (headless server / NAS)
+## Docker (optional, for a headless server / NAS)
+
+Docker is only one more way to run it: the Windows exe, desktop window, `--browser` and CLI work exactly as above.
 
 ```bash
 git clone https://github.com/CatChow0/crunchyroller-docker.git && cd crunchyroller-docker
